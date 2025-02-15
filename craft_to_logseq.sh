@@ -41,10 +41,12 @@ Example:
 
 Steps performed:
 1. Validates Logseq directory structure
-2. Processes markdown files using longdown
-3. Copies asset directories to Logseq
-4. Fixes image paths in markdown files
-5. Moves processed files to Logseq pages directory
+2. Renames journal files from yyyy.mm.dd.md to yyyy_mm_dd.md
+3. Processes markdown files using longdown
+4. Copies asset directories to Logseq
+5. Fixes image paths in markdown files
+6. Moves journal files to Logseq journals directory
+7. Moves remaining files to Logseq pages directory
 EOF
     exit 1
 }
@@ -108,6 +110,16 @@ else
     mkdir -p "$OUTPUT_DIR"
 fi
 
+# Rename journal files
+log "Renaming journal files from yyyy.mm.dd.md to yyyy_mm_dd.md format"
+for file in *.md; do
+    if [[ $file =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.md$ ]]; then
+        new_name=$(echo "$file" | sed 's/\./_/g' | sed 's/_md$/\.md/')
+        mv "$file" "$new_name"
+        log "Renamed journal file: $file -> $new_name"
+    fi
+done
+
 # Process markdown files
 log "Processing markdown files with longdown"
 longdown -d "$OUTPUT_DIR" *.md
@@ -124,10 +136,24 @@ find "$OUTPUT_DIR" -name "*.md" -exec sed -i '' \
     -e 's/%20/ /g' {} + && \
 log "Markdown files updated successfully"
 
-# Move processed files
-log "Moving processed files to Logseq pages directory"
-mv "$OUTPUT_DIR"/*.md "$LOGSEQ_PATH/pages/" && \
-log "Files moved successfully"
+# Move journal files first
+log "Moving journal files to Logseq journals directory"
+for file in "$OUTPUT_DIR"/*.md; do
+    filename=$(basename "$file")
+    if [[ $filename =~ ^[0-9]{4}_[0-9]{2}_[0-9]{2}\.md$ ]]; then
+        mv "$file" "$LOGSEQ_PATH/journals/"
+        log "Moved journal file: $filename to journals directory"
+    fi
+done
+
+# Move remaining files to pages
+log "Moving remaining files to Logseq pages directory"
+for file in "$OUTPUT_DIR"/*.md; do
+    # Check if file exists (in case all files were journals)
+    [ -e "$file" ] || continue
+    mv "$file" "$LOGSEQ_PATH/pages/"
+    log "Moved file: $(basename "$file") to pages directory"
+done
 
 # Cleanup
 log "Cleaning up temporary directory"

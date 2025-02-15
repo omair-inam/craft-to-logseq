@@ -54,6 +54,12 @@ Follow these steps for each Craft space you want to convert:
 
 ## Usage
 
+1. Switch to the export folder containing the markdown files:
+```bash
+cd /path/to/export/folder
+```
+
+2. Run the conversion command:
 ```bash
 craft-to-logseq --logseq-path /path/to/logseq --output-dir /path/to/output [--verbose]
 ```

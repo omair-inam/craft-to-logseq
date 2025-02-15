@@ -14,7 +14,7 @@ A shell script that converts [Craft](https://www.craft.do/) markdown documents t
 
 ## Prerequisites
 
-The script requires `longdown` to be installed via npm:
+The script requires [`longdown`](https://github.com/dundalek/longdown) to be installed via npm:
 
 ```bash
 npm install -g longdown

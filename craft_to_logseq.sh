@@ -82,6 +82,13 @@ if [ -z "$LOGSEQ_PATH" ] || [ -z "$OUTPUT_DIR" ]; then
     show_help
 fi
 
+# Check if longdown is installed
+if ! command -v longdown &> /dev/null; then
+    echo "Error: longdown is not installed" >&2
+    echo "Please install longdown using: npm install -g longdown" >&2
+    exit 1
+fi
+
 # Validate Logseq directory
 if [ ! -d "$LOGSEQ_PATH" ]; then
     log "Error: Logseq directory does not exist: $LOGSEQ_PATH"

@@ -7,6 +7,7 @@
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOG_FILE="$SCRIPT_DIR/logseq-md-processor-$(date +%Y%m%d_%H%M%S).log"
+CRAFTDOCS_REPORT="$SCRIPT_DIR/craftdocs-links-report-$(date +%Y%m%d_%H%M%S).txt"
 
 # Initialize variables
 LOGSEQ_PATH=""
@@ -47,6 +48,7 @@ Steps performed:
 5. Fixes image paths in markdown files
 6. Moves journal files to Logseq journals directory
 7. Moves remaining files to Logseq pages directory
+8. Generates report of craftdocs:// links that need manual updating
 EOF
     exit 1
 }
@@ -161,6 +163,43 @@ for file in "$OUTPUT_DIR"/*.md; do
     mv "$file" "$LOGSEQ_PATH/pages/"
     log "Moved file: $(basename "$file") to pages directory"
 done
+
+# Check for craftdocs:// links
+log "Checking for craftdocs:// links that need manual updating"
+echo "Craftdocs Links Report - $(date '+%Y-%m-%d %H:%M:%S')" > "$CRAFTDOCS_REPORT"
+echo "These links need to be manually updated:" >> "$CRAFTDOCS_REPORT"
+echo "----------------------------------------" >> "$CRAFTDOCS_REPORT"
+echo >> "$CRAFTDOCS_REPORT"
+
+found_links=false
+for file in "$LOGSEQ_PATH"/pages/*.md "$LOGSEQ_PATH"/journals/*.md; do
+    if [ -f "$file" ]; then
+        # Use grep to find lines containing craftdocs:// links
+        links=$(grep -n "craftdocs://" "$file")
+        if [ ! -z "$links" ]; then
+            found_links=true
+            echo "File: $(basename "$file")" >> "$CRAFTDOCS_REPORT"
+            while IFS= read -r line; do
+                line_num=$(echo "$line" | cut -d: -f1)
+                link_content=$(echo "$line" | cut -d: -f2-)
+                echo "- Line $line_num: $link_content" >> "$CRAFTDOCS_REPORT"
+            done <<< "$links"
+            echo >> "$CRAFTDOCS_REPORT"
+        fi
+    fi
+done
+
+if [ "$found_links" = true ]; then
+    log "WARNING: Found craftdocs:// links that need manual updating. See: $CRAFTDOCS_REPORT"
+    if [ "$VERBOSE" = true ]; then
+        echo "WARNING: Found craftdocs:// links that need manual updating. See: $CRAFTDOCS_REPORT"
+    fi
+else
+    log "No craftdocs:// links found"
+    if [ "$VERBOSE" = true ]; then
+        echo "No craftdocs:// links found"
+    fi
+fi
 
 # Cleanup
 log "Cleaning up temporary directory"

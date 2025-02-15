@@ -45,6 +45,8 @@ Follow these steps for each Craft space you want to convert:
 
 1. Open your Craft workspace
 2. Select all documents you want to export (you can use Cmd+A to select all)
+![alt text](<craft_export.png>)
+
 3. Right-click and select "Export X item(s) as"
 4. Choose "Markdown" from the export options
 5. Select a destination folder for your exported files 

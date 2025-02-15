@@ -1,6 +1,6 @@
 # craft-to-logseq
 
-A shell script that converts Craft markdown documents to Logseq markdown files, handling pages, journals, and image paths.
+A shell script that converts [Craft](https://www.craft.do/) markdown documents to Logseq markdown files, handling pages, journals, and image paths.
 
 ⚠️ **IMPORTANT**: This script moves files to your specific Logseq `pages`,  `journals` and `assets` folders. Please backup your data before running the script. The author is not responsible for any data loss that may occur during the conversion process.
 
